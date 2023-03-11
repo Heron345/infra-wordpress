@@ -5,10 +5,25 @@ services:
 # https://github.com/MariaDB/mariadb-docker
 # https://hub.docker.com/_/mariadb/
     image: docker.io/library/mariadb:10.7
-    container_name: db
     restart: unless-stopped
     env_file: .env
+#    environment:
+#      - MYSQL_DATABASE=wordpress
     volumes:
-      - ./db-data:/var/lib/mysql
+      - ./mariadb-data:/var/lib/mysql
     command: '--default-authentication-plugin=mysql_native_password'
 
+  wordpress:
+# https://github.com/docker-library/wordpress
+# https://hub.docker.com/_/wordpress
+    depends_on: [ "db" ]
+    image: docker.io/library/wordpress:6.1-fpm-alpine
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - WORDPRESS_DB_HOST=db:3306
+      - WORDPRESS_DB_USER=${MARIADB_USER}
+      - WORDPRESS_DB_PASSWORD=${MARIADB_PASSWORD}
+      - WORDPRESS_DB_NAME=wordpress
+    volumes:
+      - ./wordpress-www:/var/www/html
