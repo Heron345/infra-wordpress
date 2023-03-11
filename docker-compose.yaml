@@ -1,0 +1,14 @@
+
+services:
+
+  db:
+# https://github.com/MariaDB/mariadb-docker
+# https://hub.docker.com/_/mariadb/
+    image: docker.io/library/mariadb:10.7
+    container_name: db
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./db-data:/var/lib/mysql
+    command: '--default-authentication-plugin=mysql_native_password'
+
