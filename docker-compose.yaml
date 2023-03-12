@@ -29,18 +29,26 @@ services:
       - ./wordpress-www:/var/www/html
 
   webserver:
+# https://github.com/nginxinc/docker-nginx
+# https://hub.docker.com/_/nginx
     depends_on:
       - wordpress
     image: docker.io/library/nginx:stable-alpine
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "80:8080"  # you should use 80 to make certbot working
+      - "443:8443" # we use internal ports below 80
+    environment: # nginx.conf template environment
+      - NGINX_HTTP_PORT=8080      # server: listen
+      - NGINX_HTTPS_PORT=8443     # server: listen
+      - DOMAIN_NAME=sample.domain.name             # server: server_name (main)
+      - DOMAIN_NAME_ALIASES=www.sample.domain.name # server: server_name (list)
     volumes:
-      - ./nginx-conf:/etc/nginx/conf.d:ro
-      - ./wordpress-www:/var/www/html:ro
-      - ./certbot-www:/var/www/certbot:ro
-      - ./certbot-etc:/etc/letsencrypt:ro
+      - ./nginx-templates:/etc/nginx/templates:ro
+      - ./nginx-templates/options-ssl-nginx.conf:/etc/nginx/conf.d/options-ssl-nginx.conf:ro
+      - ./wordpress-www:/var/www/html:ro  # according with wordpress.conf.template
+      - ./certbot-www:/var/www/certbot:ro # according with wordpress.conf.template
+      - ./certbot-etc:/etc/letsencrypt:ro # according with wordpress.conf.template
 
   certbot:
 # https://eff-certbot.readthedocs.io/en/stable/install.html#running-with-docker
@@ -49,5 +57,5 @@ services:
     image: docker.oi/certbot/certbot:latest
     volumes:
       - ./certbot-etc:/etc/letsencrypt
-      - ./certbot-varlib:/var/www/certbot
-    command: certonly --webroot --webroot-path=/var/www/certbot --email webmaster@your_domain --agree-tos --no-eff-email --staging -d your_domain -d www.your_domain
+      - ./certbot-www:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email webmaster@sample.domain.name --agree-tos --no-eff-email --staging -d sample.domain.name -d www.sample.domain.name

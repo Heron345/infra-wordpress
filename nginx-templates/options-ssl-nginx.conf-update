@@ -1,0 +1,8 @@
+#!/usr/bin/env -S curl -K
+
+# run this script to rewrite (update) options-ssl-nginx.conf
+
+show-error
+location
+output options-ssl-nginx.conf
+url https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf
