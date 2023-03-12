@@ -56,4 +56,4 @@ services:
     volumes:
       - ./certbot-etc:/etc/letsencrypt
       - ./certbot-www:/var/www/certbot
-    command: certonly --webroot --webroot-path=/var/www/certbot --email webmaster@sample.domain.name --agree-tos --no-eff-email --staging -d sample.domain.name -d www.sample.domain.name
+    command: certonly --webroot --webroot-path=/var/www/certbot --email webmaster@sample.domain.name --agree-tos --no-eff-email -d sample.domain.name -d www.sample.domain.name
