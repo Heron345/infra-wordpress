@@ -1,4 +1,4 @@
-version: "2"
+version: "2.4"
 services:
 
   db:
@@ -10,6 +10,9 @@ services:
     volumes:
       - ./mariadb-data:/var/lib/mysql
     command: '--default-authentication-plugin=mysql_native_password'
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "--silent" ]
+      start_period: "60"
 
   wordpress:
 # https://github.com/docker-library/wordpress
@@ -34,8 +37,8 @@ services:
     image: docker.io/library/nginx:stable-alpine
     restart: unless-stopped
     ports:
-      - "8080:8080"  # you should use 80 to make certbot working
-      - "8443:8443" # we use internal ports below 80
+      - "80:8080"  # you should use 80 to make certbot working
+      - "443:8443" # we use internal ports below 80
     environment: # nginx.conf template environment
       - NGINX_HTTP_PORT=8080      # server: listen
       - NGINX_HTTPS_PORT=8443     # server: listen
@@ -47,6 +50,9 @@ services:
       - ./wordpress-www:/var/www/html:ro  # according with wordpress.conf.template
       - ./certbot-www:/var/www/certbot:ro # according with wordpress.conf.template
       - ./certbot-etc:/etc/letsencrypt:ro # according with wordpress.conf.template
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "--silent", "--show-error", "http://localhost:8080" ]
+      start_period: "60"
 
   certbot:
 # https://eff-certbot.readthedocs.io/en/stable/install.html#running-with-docker
