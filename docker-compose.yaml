@@ -42,3 +42,12 @@ services:
       - ./certbot-www:/var/www/certbot:ro
       - ./certbot-etc:/etc/letsencrypt:ro
 
+  certbot:
+# https://eff-certbot.readthedocs.io/en/stable/install.html#running-with-docker
+# https://hub.docker.com/r/certbot/certbot
+    depends_on: [ "webserver" ]
+    image: docker.oi/certbot/certbot:latest
+    volumes:
+      - ./certbot-etc:/etc/letsencrypt
+      - ./certbot-varlib:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email webmaster@your_domain --agree-tos --no-eff-email --staging -d your_domain -d www.your_domain
