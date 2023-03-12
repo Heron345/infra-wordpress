@@ -45,6 +45,9 @@ git clone https://github.com/Heron345/infra-wordpress.git .
 Better get all files and use git to get updates in the future.
  You must have at least:
 ```
+./contrib/docker-cleanup.service
+./contrib/docker-cleanup.timer
+./contrib/docker-compose@.service
 ./docker-compose.yaml
 ./.env
 ./nginx-templates
@@ -146,3 +149,17 @@ docker exec -it infra-wordpress_db_1 sh -c 'mysql -u example-user -pmy_cool_secr
 ```
 docker-compose run certbot renew --force-recreate
 ```
+
+## Finally set Systemd services
+
+Copy *.service and *.timer files from ```contrib``` dir to ```/etc/systemd/system```
+ and enable services and timers
+
+```
+cp -v /opt/infra-wordpress/*.timer /opt/infra-wordpress/*.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable docker-compose@infra-wordpress.service docker-cleanup.timer docker-cleanup.service
+systemctl start docker-compose@infra-wordpress.service docker-cleanup.service
+```
+
+TODO: add certbot auto-update certs with timer

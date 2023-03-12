@@ -1,0 +1,16 @@
+# /etc/systemd/system/docker-cleanup.service
+
+[Unit]
+Description=Docker cleanup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/tmp
+User=root
+Group=root
+ExecStart=/usr/bin/docker system prune -af
+
+[Install]
+WantedBy=multi-user.target
