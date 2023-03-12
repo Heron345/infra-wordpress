@@ -161,5 +161,3 @@ systemctl daemon-reload
 systemctl enable docker-compose@infra-wordpress.service docker-cleanup.timer docker-cleanup.service
 systemctl start docker-compose@infra-wordpress.service docker-cleanup.service
 ```
-
-TODO: add certbot auto-update certs with timer
