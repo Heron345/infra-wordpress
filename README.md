@@ -130,6 +130,10 @@ docker exec -it infra-wordpress_db_1 /usr/bin/mariadb-secure-installation
 
 * Make sure you can access the Wordpress installation panel http://your.FQDN.example and http://www.your.FQDN.example.
 
+* Disable ```MARIADB_ROOT_PASSWORD``` in ```.env```.
+ Edit ```.env``` and either comment root password line or delete it.
+ You are to save the password somewhere before deleteing it.
+
 ## Do swith to the HTTPS
 
 * Rename (disable or even delete) ```wordpress-http.conf.template```
@@ -147,4 +151,16 @@ docker-compose down
 docker-compose up -d
 ```
 
-TODO: continue and fix certbot error
+## (Optional) Exec some commands inside containers if needed
+
+* You can run command inside container with ```docker exec -t infra-wordpress_${service}_1 command```.
+ E.g.:
+```
+docker exec -t infra-wordpress_db_1 sh -c 'mysql -u example-user -pmy_cool_secret wordpress < /var/lib/mysql/dimp.sql
+```
+
+* Or run container with command replaced with something:
+```
+docker-compose run certbot renew --force-recreate
+```
+
