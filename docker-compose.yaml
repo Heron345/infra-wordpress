@@ -36,8 +36,8 @@ services:
     image: docker.io/library/nginx:stable-alpine
     restart: unless-stopped
     ports:
-      - "80:8080"  # you should use 80 to make certbot working
-      - "443:8443" # we use internal ports below 80
+      - "8080:8080"  # you should use 80 to make certbot working
+      - "8443:8443" # we use internal ports below 80
     environment: # nginx.conf template environment
       - NGINX_HTTP_PORT=8080      # server: listen
       - NGINX_HTTPS_PORT=8443     # server: listen
@@ -54,7 +54,7 @@ services:
 # https://eff-certbot.readthedocs.io/en/stable/install.html#running-with-docker
 # https://hub.docker.com/r/certbot/certbot
     depends_on: [ "webserver" ]
-    image: docker.oi/certbot/certbot:latest
+    image: docker.io/certbot/certbot:latest
     volumes:
       - ./certbot-etc:/etc/letsencrypt
       - ./certbot-www:/var/www/certbot
