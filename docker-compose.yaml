@@ -62,9 +62,6 @@ services:
 # https://hub.docker.com/r/certbot/certbot
     depends_on: [ "webserver" ]
     image: docker.io/certbot/certbot:latest
-    environment: # nginx.conf template environment
-      - DOMAIN_NAME=${NGINX_SERVER_NAME}                 # server: server_name (main)
-      - DOMAIN_NAME_ALIASES=${NGINX_SERVER_NAME_ALIASES} # server: server_name (list)
     volumes:
       - ./certbot-etc:/etc/letsencrypt
       - ./certbot-www:/var/www/certbot
