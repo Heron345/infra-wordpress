@@ -37,6 +37,7 @@
 
 2. Edit the configuration for first run
  * Edit main settings file: ```.env```
+
  _INFO: you need to edit only ```.env``` file, backup it if needed_
 
  | Environment Variable | How to change Value |
@@ -57,12 +58,14 @@
 
 1. Do the first run
  * Start services with ```docker-compose up -d```
+
  _INFO: Change directory to ```/opt/infra-wordpress``` before running docker-compose.
   You may need to run ```docker-compose down``` before ```docker-compose up -d``` to erase created containers.
   You may need to run ```docker-compose up``` without ```-d``` option to watch out the log interactively._
 
 2. Check services are working well
  * Check if wordpress is running well by reading log messages
+
  _INFO: Access logs with ```docker-compose logs service_name```
   or all services logs at once with ```docker-compose logs```_
 
@@ -73,6 +76,7 @@
  | wordpress | ```* NOTICE: fpm is running, pid 1```            |
  | wordpress | ```* NOTICE: ready to handle connections```      |
  | certbot   | ```Successfully received certificate.```, ```exited with code 0``` |
+
  _Watch all the log and error messages, fix errors!_
 
  * Check if containers running well. Command ```docker ps -a --filter name=infra-wordpres```
@@ -95,10 +99,12 @@
  | Force certbot renew     | ```docker-compose run certbot renew --force-recreate``` |
  | Restore MariaDB dump-db | ```docker exec -it infra-wordpress_db_1 sh -c 'mysql -u example-user -pmy_cool_secret wordpress < /var/lib/mysql/dimp.sql``` |
  | Run interactive shell (```/bin/sh``` inside nginx container | ```docker exec -it infra-wordpress_webserver_1 sh``` |
+
  _INFO: use this commands for debugging.
   Run command in container with ```docker exec -it infra-wordpress_${service}_1 command```._
 
  * Finally open the Wordpress installation panel using web-browser
+
   _INFO: FQDN is set in ```NGINX_SERVER_NAME```_
 
 ## Do swith to the HTTPS and install systemd service
@@ -110,9 +116,11 @@
  | ```MARIADB_ROOT_PASSWORD``` | Disable or delete the db root password line. Please save the password somewhere. |
  | ```NGINX_TEMPLATE```        | Enable HTTPS Nginx template for default.conf. E.g.: delete first ```#``` letter. |
  | ```CERTBOT_COMMAND```       | Disable the certbot command line. |
+
  _Leave all other settings as they are_
 
 2. (Optional) Comment db service environment section
+
  _All variables in environment section of db service in ```docker-compose.yaml```
  may be disabled after db init complete._
 
