@@ -1,4 +1,5 @@
 version: "2.4" # 3.x is not needed
+
 services:
 
   db: # https://github.com/MariaDB/mariadb-docker
@@ -50,6 +51,7 @@ services:
       test: curl http://localhost:8080/.healthcheck
     logging: # log files are in: journalctl CONTAINER_NAME=infra-wordpress_webserver_1
       driver: journald
+
   certbot: # https://eff-certbot.readthedocs.io/en/stable/install.html#running-with-docker
     depends_on: [ "webserver" ]
     image: docker.io/certbot/certbot:latest
@@ -59,4 +61,4 @@ services:
     command: ${CERTBOT_COMMAND:-renew}
 
 volumes:
-  certbot-www: # acme-challenge webroot
+  certbot-www: # acme-challenge webdir
