@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+# set -e in shebang: exit on any command false status
+
+# false if env is not set
+[ ! -z "${CONTAINERS_MASK}" ]
+
+readonly CONTAINERS=$(podman container list --format '{{.Names}}' --filter "name=${CONTAINERS_MASK}")
+# false if env is not set (because previous is always true
+[ ! -z "${CONTAINERS}" ]
+
+# check all wathdogs
+for c in ${CONTAINERS}
+do
+ # false if healthcheck fails
+ podman healthcheck run "${c}"
+done
+
+# only if no command returns false above
+exit 0

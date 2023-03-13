@@ -1,22 +1,32 @@
-# /etc/systemd/system/docker-compose@.service
-# systemctl daemon-reload
+#/etc/systemd/system/compose@service-id.service
 
-# Place your docker-compose to /opt/wordpress/docker-compose.yaml
-# systemctl start docker-compose@wordpress
-# systemctl enable docker-compose@wordpress
+# Installation:
+# cp -vf ./compose@.service /etc/systemd/system/
+# systemctl daemon-reload
+# systemctl enable compose@infra-wordpress
 
 [Unit]
+# https://www.freedesktop.org/software/systemd/man/systemd.unit.html
 Description=%i service with docker compose
 PartOf=docker.service
 After=docker.service
+Requires=docker.service
 
 [Service]
-Type=oneshot
-RemainAfterExit=true
+# https://www.freedesktop.org/software/systemd/man/systemd.service.html
+Type=simple
+Restart=on-failure
+TimeoutStopSec=70
+WatchdogSec=120
 WorkingDirectory=/opt/%i
-ExecStartPre=/bin/sh -c 'while /usr/bin/sleep 16d; do /usr/bin/docker-compose --no-ansi run certbot renew && /usr/bin/docker-compose --no-ansi kill -s SIGHUP webserver; done &'
-ExecStart=/usr/bin/docker-compose --no-ansi up -d --remove-orphans
-ExecStop=/usr/bin/docker-compose --no-ansi down
+#ExecStartPre=/bin/sh -c 'while /usr/bin/sleep 16d; do /usr/bin/docker-compose --no-ansi run certbot renew && /usr/bin/docker-compose --no-ansi kill -s SIGHUP webserver; done &'
+ExecStartPre=/usr/bin/docker-compose --no-ansi down -v
+ExecStop=/usr/bin/docker-compose --no-ansi down -v
+ExecStart=sh -c "(while sleep 10; do CONTAINERS_MASK=%i ./watchdog && /usr/bin/systemd-notify WATCHDOG=1; done) & exec /usr/bin/docker-compose --no-ansi up --remove-orphans"
+
+# https://www.freedesktop.org/software/systemd/man/systemd.kill.html
+KillMode=control-group
+NotifyAccess=all
 
 [Install]
 WantedBy=multi-user.target
