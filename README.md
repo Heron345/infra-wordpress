@@ -63,9 +63,9 @@
    ```NGINX_SERVER_NAMES```
                         | Set the main primary FQDN value to the ```NGINX_SERVER_NAME```.
                           Set aliases list separated by space to the ```NGINX_SERVER_NAMES```. |
- | ```CERTBOT_COMMANDLINE```
-                        | Comment this value to get SSL cert only for ```NGINX_SERVER_NAME```,
-                          Fill all domains using ```-d domain.name.example``` instead.
+ | ```CERTBOT_COMMAND```
+                        | Edit according to https://eff-certbot.readthedocs.io/en/stable/using.html.
+                          Fill all domains using ```-d domain.name.example```.
                           Set email for receiving information if you wahnt. |
 
  /INFO: You can add more Environment Variables in ```.env``` file,
@@ -137,7 +137,13 @@
                           Please save the password somewhere. |
  | ```NGINX_TEMPLATE``` | Enable HTTPS Nginx template for default.conf.
                           E.g.: delete first ```#``` letter. |
+ | ```CERTBOT_COMMAND```
+                        | Disable the certbot command line. |
  /Leave all other settings as they are/
+
+2. (Optional) Comment db service environment section
+ /All variables in environment section of db service in ```docker-compose.yaml```
+ may be disabled after db init complete./
 
 2. Try the configuration by restarting services
 ```

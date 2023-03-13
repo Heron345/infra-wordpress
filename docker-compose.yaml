@@ -4,17 +4,16 @@ services:
   db: # https://github.com/MariaDB/mariadb-docker
     image: docker.io/library/mariadb:10.7
     restart: unless-stopped
-    environment:
+    environment: # you can comment this section after db initialisation complete
       - MARIADB_DATABASE=${MARIADB_DATABASE}
       - MARIADB_USER=${MARIADB_USER}
       - MARIADB_PASSWORD=${MARIADB_PASSWORD}
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
     volumes:
-      - ./mariadb-data:/var/lib/mysql
+      - ./mariadb:/var/lib/mysql
     command: '--default-authentication-plugin=mysql_native_password'
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "--silent" ]
-      start_period: "60"
+      test: mariadb --user=${MARIADB_USER} --password=${MARIADB_PASSWORD} -e "select 1;"
 
   wordpress: # https://github.com/docker-library/wordpress
     depends_on: [ "db" ]
@@ -26,7 +25,9 @@ services:
       - WORDPRESS_DB_PASSWORD=${MARIADB_PASSWORD}
       - WORDPRESS_DB_NAME=${MARIADB_DATABASE}
     volumes:
-      - ./wordpress-www:/var/www/html
+      - ./wordpress:/var/www/html
+    healthcheck:
+      test: ps -T
 
   webserver: # https://github.com/nginxinc/docker-nginx
     depends_on:
@@ -40,23 +41,21 @@ services:
       - SERVER_NAME=${NGINX_SERVER_NAME} ${NGINX_SERVER_NAMES} # server: server_name (list)
       - CERTBOT_ARCHIVE=${NGINX_SERVER_NAME} # ssl-secrets location part
     volumes:
-      - ./wordpress-www:/var/www/html:ro     # main site dir
-      - ${NGINX_TEMPLATE:-./nginx-etc/http.conf.template}:/etc/nginx/templates/default.template:ro
-      - ${NGINX_SSLCONF_CERTOBOT:-./nginx-etc/options-ssl-nginx.conf}:/etc/nginx/templates/options-ssl-nginx.include:ro
-      - certbot-etc:/etc/letsencrypt:ro
+      - ./wordpress:/var/www/html:ro     # main site dir
+      - ${NGINX_TEMPLATE:-./nginx/http.conf.template}:/etc/nginx/templates/default.conf.template:ro
+      - ${NGINX_SSLCONF_CERTOBOT:-./nginx/options-ssl-nginx.conf}:/etc/nginx/options-ssl-nginx.include:ro
+      - ./certbot:/etc/letsencrypt:ro
       - certbot-www:/var/www/certbot:ro
     healthcheck:
-      test: [ "CMD", "curl", "--fail", "--silent", "--show-error", "http://localhost:8080" ]
-      start_period: "60"
+      test: curl http://localhost:8080/.healthcheck
 
   certbot: # https://eff-certbot.readthedocs.io/en/stable/install.html#running-with-docker
     depends_on: [ "webserver" ]
     image: docker.io/certbot/certbot:latest
     volumes:
-      - certbot-etc:/etc/letsencrypt
+      - ./certbot:/etc/letsencrypt
       - certbot-www:/var/www/certbot
-    command: certonly --webroot --agree-tos --webroot-path=/var/www/certbot --no-eff-email ${CERTBOT_COMMANDLINE:--d ${NGINX_SERVER_NAME}}
+    command: ${CERTBOT_COMMAND:-renew}
 
 volumes:
-  certbot-etc: # certbot_archive
   certbot-www: # acme-challenge webroot
