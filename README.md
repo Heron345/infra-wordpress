@@ -84,14 +84,14 @@
 
 `docker ps -a --filter name=infra-wordpres` should return something like:
 
-`
+```
   Name                 Command               State           Ports
   -------------------------------------------------------------------------
   certbot     certbot certonly --webroot ...   Exit 0
   db          docker-entrypoint.sh --def ...   Up       3306/tcp, 33060/tcp
   webserver   nginx -g daemon off;             Up       0.0.0.0:80->80/tcp
   wordpress   docker-entrypoint.sh php-fpm     Up       9000/tcp
-`
+```
 
 4. Interact with started services
 
@@ -128,16 +128,16 @@
  may be disabled after db init complete._
 
 3. Try the configuration by restarting services
-`
+```
 cd /opt/infra-wordpress
 docker-compose down
 docker-compose up -d
-`
+```
 
 4. Finally set Systemd services
-`
+```
 cp -v /opt/infra-wordpress/*.timer /opt/infra-wordpress/*.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable docker-compose@infra-wordpress.service docker-cleanup.timer
 systemctl start docker-compose@infra-wordpress.service docker-cleanup.timer
-`
+```
