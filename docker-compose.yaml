@@ -48,7 +48,8 @@ services:
       - certbot-www:/var/www/certbot:ro
     healthcheck:
       test: curl http://localhost:8080/.healthcheck
-
+    logging: # log files are in: journalctl CONTAINER_NAME=infra-wordpress_webserver_1
+      driver: journald
   certbot: # https://eff-certbot.readthedocs.io/en/stable/install.html#running-with-docker
     depends_on: [ "webserver" ]
     image: docker.io/certbot/certbot:latest
