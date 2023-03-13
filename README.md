@@ -34,7 +34,7 @@
  | FILE or mask | Usage while installation |
  |:-------------|--------------------------|
  | `./docker-compose.yaml`, `./.env`, `./nginx` | Main installation |
- | `./contrib/*.service`, `./contrib/*.timer`       | Systemd setup |
+ | `./docker-compose@.service`                  | Systemd setup |
 
  _INFO: Anoter files are not required, but you can keep them_
 
@@ -57,7 +57,7 @@
 
 ## First manual run and check
 
-1. Start services with `docker-compose up -d`
+1. Start service with `docker-compose up -d`
 
  _INFO: Change directory to `/opt/infra-wordpress`.
   You may need run `docker-compose down` before `docker-compose up -d`
@@ -136,8 +136,8 @@ docker-compose up -d
 
 4. Finally set Systemd services
 ```
-cp -v /opt/infra-wordpress/*.timer /opt/infra-wordpress/*.service /etc/systemd/system/
+cp -v /opt/infra-wordpress/docker-compose@.service /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable docker-compose@infra-wordpress.service docker-cleanup.timer
-systemctl start docker-compose@infra-wordpress.service docker-cleanup.timer
+systemctl enable docker-compose@infra-wordpress.service
+systemctl start docker-compose@infra-wordpress.service
 ```

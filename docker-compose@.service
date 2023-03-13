@@ -16,13 +16,12 @@ Requires=docker.service
 # https://www.freedesktop.org/software/systemd/man/systemd.service.html
 Type=simple
 Restart=on-failure
-TimeoutStopSec=70
-WatchdogSec=120
+TimeoutStopSec=30
+WatchdogSec=600
 WorkingDirectory=/opt/%i
-#ExecStartPre=/bin/sh -c 'while /usr/bin/sleep 16d; do /usr/bin/docker-compose --no-ansi run certbot renew && /usr/bin/docker-compose --no-ansi kill -s SIGHUP webserver; done &'
-ExecStartPre=/usr/bin/docker-compose --no-ansi down -v
-ExecStop=/usr/bin/docker-compose --no-ansi down -v
-ExecStart=sh -c "(while sleep 10; do CONTAINERS_MASK=%i ./watchdog && /usr/bin/systemd-notify WATCHDOG=1; done) & exec /usr/bin/docker-compose --no-ansi up --remove-orphans"
+ExecStartPre=docker-compose --no-ansi down -v
+ExecStop=docker-compose --no-ansi down -v
+ExecStart=sh -c "(while sleep 120s; do CONTAINERS_MASK=%i ./watchdog && systemd-notify WATCHDOG=1; done) & exec docker-compose --no-ansi up --remove-orphans"
 
 # https://www.freedesktop.org/software/systemd/man/systemd.kill.html
 KillMode=control-group
