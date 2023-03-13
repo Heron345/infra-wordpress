@@ -1,20 +1,42 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 # set -e in shebang: exit on any command false status
+trap 'echo Error code ${?} at line ${LINENO}: "${BASH_COMMAND}"' ERR
 
 # false if env is not set
-[ ! -z "${CONTAINERS_MASK}" ]
+[ ! -z ${CONTAINERS_MASK} ]
 
-readonly CONTAINERS=$(podman container list --format '{{.Names}}' --filter "name=${CONTAINERS_MASK}")
+
+readonly SERVICES=$(docker-compose ps --services)
+# false if env is not set (because previous is always true
+[ ! -z "${SERVICES}" ]
+
+readonly CONTAINERS=$(docker ps --all --filter "name=^${CONTAINERS_MASK}_" --format '{{.Names}}')
 # false if env is not set (because previous is always true
 [ ! -z "${CONTAINERS}" ]
 
-# check all wathdogs
-for c in ${CONTAINERS}
+for service in webserver wordpress db # preset service names
 do
- # false if healthcheck fails
- podman healthcheck run "${c}"
+ # false if any of preset container name is not found in CONTAINERS
+ [[ "${CONTAINERS}" == *"${CONTAINERS_MASK}_${service}_"* ]]
+
+ # false if any of preset service name is not found in SERVICES
+ [[ "${SERVICES}" == *"${service}"* ]]
+
+ # false if any of preset services is not healthy
+ [[ $(docker-compose ps ${service} ) == *'(healthy)'* ]]
 done
 
+
 # only if no command returns false above
+
+# do dirty haks here too
+set +e
+[ $((${RANDOM} % 100)) -eq 0 ] && (
+ docker-compose --no-ansi run certbot renew
+ docker-compose --no-ansi kill -s SIGHUP webserver
+ docker system prune --all --force
+)
+
+# clean exit
 exit 0
