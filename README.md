@@ -1,103 +1,104 @@
 
 # Wordpress Compose installation
 
-## Pre-requisites
+## Pre-install checklist
 
-Pre-install checklist
+1. Install Ubuntu 20.04 as basic host OS
+ * The installation guide uses docker, docker-compose and systemd,
+   and it may run on any distro
+ * Make sure there is enough space in /opt and /var directories
 
-* Install Ubuntu 20.04 as basic host OS.
- Actually the installation guide must suit another distros,
- but I tested scripts and installation guide with Ubuntu.
+ | PATH | Minimal space required | Recommented space |
+ |:-----|------------------------|-------------------|
+ | ```/opt```
+   (the site, db and certbot persistent data and backups)
+        | 500 Mib                | 20+ Gib           |
+ | ```/var```
+   (default docker storage and logs)
+        | 1 Gib                  | 5+ Gib            |
 
-* Make sure there is enough space in /opt and /var directories.
- This guide uses /opt as base dir for persisent data.
- This guide uses docker, which stores data in /var/lib/docker.
+2. (Optional) Add your admin user
+ * Add user *admin* and primary groups *admin*: ```adduser admin```
+ * Add user *admin* to the *sudo* group: ```usermod -aG sudo admin```
 
-* (Optional) Add your admin user.
- If you wahnt to, add user and give him administrative rights
-```
-adduser admin # adds user with name *admin* and with the primary group *admin*
-usermod -aG sudo admin # adds user *admin* th the *sudo* group
-```
+3. Install packages with apt
+ * Do not forget to update and maybe upgrade: ```apt-get update && apt-get upgrade```
+ * Install necessary (must have) packages: ```sudo apt install curl git docker docker-compose```
+ * (Optional) install additional packages: ```sudo apt install screen mc pwgen```
 
-* Install necessary (must) packages.
-```
-sudo apt update
-sudo apt upgrade # you better do upgrade after install
-sudo apt install curl git docker docker-compose
-```
+## Installation process
 
-* (Optional) install additional (optional) packages.
- I usually use this packages suit, but it is not required for guide.
-```
-sudo apt install screen mc pwgen
-```
+1. Get installation files from this repo
+ * Use git to clone this repo or download them manually to ```/opt/infra-wordpress```:
+ ```git clone https://github.com/Heron345/infra-wordpress.git /opt/infra-wordpress```
 
-## Copy and edit installation files
+ | FILE or mask | Usage while installation |
+ |:-------------|--------------------------|
+ | ```./docker-compose.yaml```
+   ```./.env```
+   ```./nginx-templates```
+                | Main installation files for the guide |
+ | ```./contrib/*.service```
+   ```./contrib/*.timer```
+                | Required to run with systemd |
 
-* Clone files from this repo to /opt/infra-wordpress directory:
-```
-mkdir -vp /opt/infra-wordpress
-cd /opt/infra-wordpress
-git clone https://github.com/Heron345/infra-wordpress.git .
-```
+ /INFO: Anoter files are not required, but you can keep them/
 
-Better get all files and use git to get updates in the future.
- You must have at least:
-```
-./contrib/docker-cleanup.service
-./contrib/docker-cleanup.timer
-./contrib/docker-compose@.service
-./docker-compose.yaml
-./.env
-./nginx-templates
-./nginx-templates/options-ssl-nginx.conf
-./nginx-templates/wordpress-http.conf.template
-./nginx-templates/wordpress-https.conf.template~
-```
+2. Edit the configuration for first run
+ * Edit main settings file: ```.env```
+ /INFO: you need to edit only ```.env``` file, backup it if needed/
 
-* Edit the configuration files:
+ | Environment Variable | How to change Value |
+ |:---------------------|:--------------------|
+ | ```MARIADB_DATABASE```
+   ```MARIADB_USER```
+   ```MARIADB_PASSWORD```
+   ```MARIADB_ROOT_PASSWORD```
+                        | Database credentinals. *MUST* be changed. |
+ | ```NGINX_TEMPLATE``` | Nginx template for default.conf.
+                          You should use default HTTP template for first run to obtain ssl cert data.
+                          You should not run with HTTPS protocol enabled before obtaining ssl cert.
+                          So *do not change now*. |
+ | ```NGINX_SERVER_NAME```
+   ```NGINX_SERVER_NAMES```
+                        | Set the main primary FQDN value to the ```NGINX_SERVER_NAME```.
+                          Set aliases list separated by space to the ```NGINX_SERVER_NAMES```. |
+ | ```CERTBOT_COMMANDLINE```
+                        | Comment this value to get SSL cert only for ```NGINX_SERVER_NAME```,
+                          Fill all domains using ```-d domain.name.example``` instead.
+                          Set email for receiving information if you wahnt. |
 
-*! Please DO EDIT ```.env``` file* and change credentials in it!
- Use strong passwords and right login and database names.
+ /INFO: You can add more Environment Variables in ```.env``` file,
+  some of them already exist in ```docker-compose.yaml``` with default values.
+  Or you can add new ones in both compose and env file.
+  You are welcome to contribute to this repo./
 
-* Edit ```.env``` to set hostnames and certbot settings.
- Fill your domain names to all three variables in different format:
-  ```NGINX_SERVER_NAME_PRIMARY```, ```NGINX_SERVER_NAME_ALIASES``` and ```CERTBOT_COMMANDLINE```
+ * (Optional) Run ```./options-ssl-nginx.conf-update``` in ```nginx-templates``` directory
 
-* (Optional) run ```./options-ssl-nginx.conf-update``` in ```nginx-templates``` directory.
+## Do the first manual run and check if it is OK
 
-* Make sure ```nginx-templates/wordpress-http.conf.template``` is enabled
- and ```nginx-templates/wordpress-https.conf.template~``` is *not* enabled.
- You should not run nginx with HTTPS protocol enabled before obtaining ssl cert.
- E.g ```nginx-templates/wordpress-https.conf.template~``` must not suit *.template wildcard so far.
+1. Do the first run
+ * Start services with ```docker-compose up -d```
+ /INFO: Change directory to ```/opt/infra-wordpress``` before running docker-compose.
+  You may need to run ```docker-compose down``` before ```docker-compose up -d``` to erase created containers.
+  You may need to run ```docker-compose up``` without ```-d``` option to watch out the log interactively./
 
-## Do first manual run
+2. Check services are working well
+ * Check if wordpress is running well by reading log messages
+ /INFO: Access logs with ```docker-compose logs service_name```
+  or all services logs at once with ```docker-compose logs```
 
-* Start services.
-```
-cd /opt/infra-wordpress
-docker-compose down
-docker-compose up -d
-```
+ | Service   | Good/OK status in the log |
+ |:----------|:--------------------------|
+ | db        | ```* 0 [Note] Starting MariaDB * as process *``` |
+ | webserver | ```* [notice] 1#1: start worker processes```     |
+ | wordpress | ```* NOTICE: fpm is running, pid 1```            |
+ | wordpress | ```* NOTICE: ready to handle connections```      |
+ | certbot   | ```Successfully received certificate.```         |
+               ```exited with code 0```                         |
+ /Watch all the log and error messages, fix errors!/
 
-* Check if all is correct.
- You can access logs with ```docker-compose logs service_name```
- OK statuses for services are (look for them in the log):
-```
-db_1         | * 0 [Note] Starting MariaDB * as process *
-webserver_1  | * [notice] 1#1: start worker processes
-wordpress_1  | * NOTICE: fpm is running, pid 1
-wordpress_1  | * NOTICE: ready to handle connections
-certbot_1    | Successfully received certificate.
-infra-wordpress_certbot_1 exited with code 0
-```
- Watch out all the log and error messages, fix it!
-
-* Check docker containers runs well:
-```
-docker ps -a --filter name=infra-wordpres
-```
+ * Check if containers running well. Command ```docker ps -a --filter name=infra-wordpres```
  should return something like:
 ```
   Name                 Command               State           Ports
@@ -108,56 +109,47 @@ docker ps -a --filter name=infra-wordpres
   wordpress   docker-entrypoint.sh php-fpm     Up       9000/tcp
 ```
 
-* Do MariaDB and another suggestions from the log.
- In new terminal do run:
-```
-docker exec -it infra-wordpress_db_1 /usr/bin/mariadb-secure-installation
-```
+3. Interact with started services
+ * Do MariaDB and other suggestions from the log by executing commands inside containers
 
-* Make sure you can access the Wordpress installation panel http://your.FQDN.example and http://www.your.FQDN.example.
+ | Service and description | Example command |
+ |:------------------------|:----------------|
+ | Run mariadb-secure-installation for the db service
+                           | ```docker exec -it infra-wordpress_db_1 /usr/bin/mariadb-secure-installation``` |
+ | Force certbot renew     | ```docker-compose run certbot renew --force-recreate``` |
+ | Restore MariaDB dump-db | ```docker exec -it infra-wordpress_db_1 sh -c 'mysql -u example-user -pmy_cool_secret wordpress < /var/lib/mysql/dimp.sql``` |
+ | Run interactive shell (```/bin/sh``` inside nginx container
+                           | ```docker exec -it infra-wordpress_webserver_1 sh``` |
+ /INFO: use this commands for debugging.
+  Run command in container with ```docker exec -it infra-wordpress_${service}_1 command```./
 
-* Disable ```MARIADB_ROOT_PASSWORD``` in ```.env```.
- Edit ```.env``` and either comment root password line or delete it.
- You are to save the password somewhere before deleteing it.
+ * Finally open the Wordpress installation panel using web-browser
+  /INFO: FQDN is set in ```NGINX_SERVER_NAME```/
 
-## Do swith to the HTTPS
+## Do swith to the HTTPS and install systemd service
 
-* Rename (disable or even delete) ```wordpress-http.conf.template```
- and ```wordpress-https.conf.template~``` files.
-```
-cd nginx-templates
-mv wordpress-http.conf.template wordpress-http.conf.template~disabled
-mv wordpress-https.conf.template~ wordpress-https.conf.template
-```
+1. Edit ```.env``` once again
 
-* Restart all services
+ | Environment Variable | How to change Value |
+ |:---------------------|:--------------------|
+ | ```MARIADB_ROOT_PASSWORD```
+                        | Disable or delete the db root password line.
+                          Please save the password somewhere. |
+ | ```NGINX_TEMPLATE``` | Enable HTTPS Nginx template for default.conf.
+                          E.g.: delete first ```#``` letter. |
+ /Leave all other settings as they are/
+
+2. Try the configuration by restarting services
 ```
 cd /opt/infra-wordpress
 docker-compose down
 docker-compose up -d
 ```
 
-## (Optional) Exec some commands inside containers if needed
-
-* You can run command inside container with ```docker exec -it infra-wordpress_${service}_1 command```.
- E.g.:
-```
-docker exec -it infra-wordpress_db_1 sh -c 'mysql -u example-user -pmy_cool_secret wordpress < /var/lib/mysql/dimp.sql
-```
-
-* Or run container with command replaced with something:
-```
-docker-compose run certbot renew --force-recreate
-```
-
-## Finally set Systemd services
-
-Copy *.service and *.timer files from ```contrib``` dir to ```/etc/systemd/system```
- and enable services and timers
-
+3. Finally set Systemd services
 ```
 cp -v /opt/infra-wordpress/*.timer /opt/infra-wordpress/*.service /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable docker-compose@infra-wordpress.service docker-cleanup.timer docker-cleanup.service
-systemctl start docker-compose@infra-wordpress.service docker-cleanup.service
+systemctl enable docker-compose@infra-wordpress.service docker-cleanup.timer
+systemctl start docker-compose@infra-wordpress.service docker-cleanup.timer
 ```

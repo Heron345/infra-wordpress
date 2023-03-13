@@ -1,8 +1,8 @@
 server {
-        listen ${NGINX_HTTP_PORT};
-#        listen [::]:${NGINX_HTTP_PORT};
+        listen 8080;
+#        listen [::]:8080;
 
-        server_name ${DOMAIN_NAME_ALIASES};
+        server_name ${SERVER_NAME};
 
         index index.php index.html index.htm;
 
