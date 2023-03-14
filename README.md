@@ -33,8 +33,9 @@
 
  | FILE or mask | Usage while installation |
  |:-------------|--------------------------|
- | `./docker-compose.yaml`, `./.env`, `./nginx` | Main installation |
- | `./docker-compose@.service`                  | Systemd setup |
+ | `./docker-compose.yaml`, `./.env`, `./nginx` | Main installation   |
+ | `./docker-compose@.service`                  | Systemd setup       |
+ | `./docker-compose.override.yml`              | Additional services |
 
  _INFO: Anoter files are not required, but you can keep them_
 
@@ -141,3 +142,30 @@ systemctl daemon-reload
 systemctl enable docker-compose@infra-wordpress.service
 systemctl start docker-compose@infra-wordpress.service
 ```
+
+# Run additional services
+
+_Additional admin services deployments
+ are configured in `docker-compose.override.yml`_
+
+Using the `docker-compose.override.yml` file
+ [is documented by Docker](https://docs.docker.com/compose/extends/)
+
+
+* _Example_: Disable **all** additional services
+
+```
+docker-compose down
+mv -v docker-compose.override.yml docker-compose.override.yml-disabled
+```
+
+_INFO: move `docker-compose.override.yml` back to enable services
+
+* _Example_: Disable **phpmyadmin** additional service
+
+Stop the service: `docker-compose down phpmyadmin`
+
+Delete or comment phpmyadmin section in docker-compose.override.yml
+
+_INFO: Uncomment phpmyadmin section and use `docker-compose up phpmyadmin -d`
+ to enable phpmyadmin back_
