@@ -48,7 +48,7 @@
  | `MARIADB_*`      | Database credentinals. **MUST** be changed. |
  | `NGINX_TEMPLATE` | Nginx template for default.conf. <br /> You should use default HTTP template for first run to obtain ssl cert data. You should not run with HTTPS protocol enabled before obtaining ssl cert. So **do not change now**. |
  | `NGINX_SERVER_NAME*` | Set one main primary domain FQDN value to the `NGINX_SERVER_NAME`. <br /> Set domain aliases list separated by space to the `NGINX_SERVER_NAMES`. |
- | `CERTBOT_COMMAND` | Edit according to [Certbot documentation](https://eff-certbot.readthedocs.io/en/stable/using.html). <br /> Fill all domains using `-d domain.name.example`. |
+ | `CERTBOT_COMMAND` | Edit according to [Certbot documentation](https://eff-certbot.readthedocs.io/en/stable/using.html). <br /> Fill all domains using `-d example.com`. |
 
  _INFO: You can add more Environment Variables in `.env` file,
   some of them are hidden in `docker-compose.yaml` with default values.
