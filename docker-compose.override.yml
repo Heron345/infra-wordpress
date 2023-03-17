@@ -2,12 +2,12 @@ version: "2.4"
 
 services:
 
-  phpmyadmin: # https://github.com/phpmyadmin/docker
-    depends_on: [ "db" ]
-    image: docker.io/phpmyadmin/phpmyadmin:${PHPMYADMIN_TAG:-fpm-alpine}
-    environment:
-      - PMA_HOSTS: db, db-staging
-    volumes:
-      - phpmyadmin:/var/www/html
-    healthcheck:
-      test: ps -T
+#  phpmyadmin: # https://github.com/phpmyadmin/docker
+#    depends_on: [ "db" ]
+#    image: docker.io/phpmyadmin/phpmyadmin:${PHPMYADMIN_TAG:-fpm-alpine}
+#    environment:
+#      - PMA_HOSTS: db, db-staging
+#    volumes:
+#      - phpmyadmin:/var/www/html
+#    healthcheck:
+#      test: ps -T
