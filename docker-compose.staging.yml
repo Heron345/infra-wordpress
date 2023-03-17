@@ -2,14 +2,6 @@ version: "2.4"
 
 services:
 
-  phpmyadmin: # https://github.com/phpmyadmin/docker
-    depends_on: [ "db" ]
-    image: docker.io/phpmyadmin/phpmyadmin:${PHPMYADMIN_TAG:-fpm-alpine}
-    volumes:
-      - phpmyadmin:/var/www/html
-    healthcheck:
-      test: ps -T
-
   db-staging:
     <<: db
 #    image: docker.io/library/mariadb:${MARIADB_TAG:-10.7}
