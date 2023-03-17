@@ -58,11 +58,11 @@ services:
     image: docker.io/certbot/certbot:${CERTBOT_TAG:-latest}
     volumes:
       - ./certbot:/etc/letsencrypt
-      - certbot-lib:/var/lib/letsencrypt
       - certbot-www:/var/www/certbot
+    tmpfs:
+      - /var/lib/letsencrypt
     command: ${CERTBOT_COMMAND:-renew}
 
 volumes:
-  certbot-lib: # certbot /var/lib dir
   certbot-www: # acme-challenge webdir
   phpmyadmin:  # phpmyadmin data dir
