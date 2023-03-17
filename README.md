@@ -33,9 +33,10 @@
 
  | FILE or mask | Usage while installation |
  |:-------------|--------------------------|
- | `./docker-compose.yaml`, `./.env`, `./nginx` | Main installation   |
- | `./docker-compose@.service`                  | Systemd setup       |
- | `./docker-compose.override.yml`              | Additional services |
+ | `./docker-compose.yaml`, `./.env`, `./nginx` | Main installation |
+ | `./scripts` , `./watchdog`    | Watchdog and maintenance files   |
+ | `./docker-compose@.service`   | Systemd setup                    |
+ | `./docker-compose.*.yml`      | Additional services              |
 
  _INFO: Anoter files are not required, but you can keep them_
 
@@ -45,10 +46,10 @@
 
  | Environment Variable | How to change Value |
  |:---------------------|:--------------------|
- | `MARIADB_*`      | Database credentinals. **MUST** be changed. |
- | `NGINX_TEMPLATE` | Nginx template for default.conf. <br /> You should use default HTTP template for first run to obtain ssl cert data. You should not run with HTTPS protocol enabled before obtaining ssl cert. So **do not change now**. |
+ | `MARIADB_*`          | Database credentinals. **MUST** be changed. |
+ | `NGINX_TEMPLATE`     | Nginx template for default.conf. <br /> You should use default HTTP template for first run to obtain ssl cert data. You should not run with HTTPS protocol enabled before obtaining ssl cert. So **do not change now**. |
  | `NGINX_SERVER_NAME*` | Set one main primary domain FQDN value to the `NGINX_SERVER_NAME`. <br /> Set domain aliases list separated by space to the `NGINX_SERVER_NAMES`. |
- | `CERTBOT_COMMAND` | Edit according to [Certbot documentation](https://eff-certbot.readthedocs.io/en/stable/using.html). <br /> Fill all domains using `-d example.com`. |
+ | `CERTBOT_COMMAND`    | Edit according to [Certbot documentation](https://eff-certbot.readthedocs.io/en/stable/using.html). <br /> Fill all domains using `-d example.com`. |
 
  _INFO: You can add more Environment Variables in `.env` file,
   some of them are hidden in `docker-compose.yaml` with default values.
@@ -123,25 +124,23 @@
 
  _Leave all other settings as they are_
 
-2. _(Optional)_ Disable db service environment section in `docker-compose.yaml`
-
- _All variables in environment section of db service in `docker-compose.yaml`
- may be disabled after db init complete._
-
-3. Try the configuration by restarting services
+2. Try the configuration by restarting services
 ```
 cd /opt/infra-wordpress
 docker-compose down
 docker-compose up -d
 ```
 
-4. Finally set Systemd services
+3. Finally set Systemd services
 ```
 cp -v /opt/infra-wordpress/docker-compose@.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable docker-compose@infra-wordpress.service
 systemctl start docker-compose@infra-wordpress.service
 ```
+
+ _INFO: Starting the systemd service will do `docker-compose down`
+  and `docker-compose up`. This means services restarting**_
 
 # Run additional services
 
