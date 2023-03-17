@@ -55,7 +55,7 @@
   some of them are hidden in `docker-compose.yaml` with default values.
   Or you can tune and code Variables in both `docker-compose.yaml` and `.env` file._
 
- * _(Optional)_ Run `./options-ssl-nginx.conf-update` in `nginx-templates` directory
+ * _(Optional)_ Run `./options-ssl-nginx.conf-update` in `nginx` directory
 
 ## First manual run and check
 
@@ -162,7 +162,7 @@ _INFO: move `docker-compose.override.yml` back to enable services
 
 * _Example_: Disable **phpmyadmin** additional service
 
-Stop the service: `docker-compose down phpmyadmin`
+Stop the service: `docker-compose stop phpmyadmin`
 
 Delete or comment phpmyadmin section in docker-compose.override.yml
 
