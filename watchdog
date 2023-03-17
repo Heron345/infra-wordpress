@@ -33,9 +33,8 @@ done
 # do dirty haks here too
 set +e
 [ $((${RANDOM} % 100)) -eq 0 ] && (
- docker-compose --no-ansi run certbot renew
- docker-compose --no-ansi kill -s SIGHUP webserver
- docker system prune --all --force
+ ./scripts/certbot-renew
+ ./docker-system-prune
 )
 
 # clean exit

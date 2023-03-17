@@ -1,0 +1,13 @@
+#!/bin/bash -e
+
+# Enable bash expand aliases for non-interactive shells
+shopt -s expand_aliases
+
+# Dump the database based on
+alias mysqldump="docker exec -i infra-wordpress_db_1 sh -c 'exec mysqldump -u \${MARIADB_USER} -p\${MARIADB_PASSWORD} \${MARIADB_DATABASE}'"
+
+# if -A is passed as argiment AND root password is set
+[ "${1}" -eq '-A' ] && [ ! -z "${MARIADB_ROOT_PASSWORD}" ]\
+ && alias mysqldump="docker exec -i infra-wordpress_db_1 mysqldump -u root -p\"${MARIADB_ROOT_PASSWORD}\" ${MARIADB_DATABASE:--A}"
+
+mysqldump
