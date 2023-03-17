@@ -1,0 +1,36 @@
+version: "2.4"
+
+services:
+
+  phpmyadmin: # https://github.com/phpmyadmin/docker
+    depends_on: [ "db" ]
+    image: docker.io/phpmyadmin/phpmyadmin:${PHPMYADMIN_TAG:-fpm-alpine}
+    volumes:
+      - phpmyadmin:/var/www/html
+    healthcheck:
+      test: ps -T
+
+  db-staging:
+    <<: db
+#    image: docker.io/library/mariadb:${MARIADB_TAG:-10.7}
+    environment:
+      - MARIADB_DATABASE=${MARIADB_DATABASE:-wordpress-staging}
+      - MARIADB_USER=${MARIADB_USER:-wordpress-staging-user}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD:-wordpress-staging-pass}
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD:-wordpress-staging-root-pass}
+    volumes:
+      - mariadb-staging:/var/lib/mysql
+    healthcheck:
+      test: [ "true" ]
+
+  wordpress-staging:
+    <<: wordpress
+    depends_on: [ "db-staging" ]
+#    image: docker.io/library/wordpress:${WORDPRESS_TAG:-6.1-fpm-alpine}
+    environment:
+      - WORDPRESS_DB_HOST=db-staging:3306
+      - WORDPRESS_DB_USER=${MARIADB_USER:-wordpress-staging-user}
+      - WORDPRESS_DB_PASSWORD=${MARIADB_PASSWORD:-wordpress-staging-pass}
+      - WORDPRESS_DB_NAME=${MARIADB_DATABASE:-wordpress-staging}
+    volumes:
+      - ./wordpress-staging:/var/www/html

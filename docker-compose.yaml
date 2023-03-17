@@ -2,7 +2,7 @@ version: "2.4" # 3.x is not needed
 
 services:
 
-  db: # https://github.com/MariaDB/mariadb-docker
+  db: &db # https://github.com/MariaDB/mariadb-docker
     image: docker.io/library/mariadb:${MARIADB_TAG:-10.7}
     restart: unless-stopped
     environment: # you can comment this section after db initialisation complete
@@ -16,7 +16,7 @@ services:
     healthcheck:
       test: mariadb --user=${MARIADB_USER} --password=${MARIADB_PASSWORD} -e "select 1;"
 
-  wordpress: # https://github.com/docker-library/wordpress
+  wordpress: &wordpress # https://github.com/docker-library/wordpress
     depends_on: [ "db" ]
     image: docker.io/library/wordpress:${WORDPRESS_TAG:-6.1-fpm-alpine}
     restart: unless-stopped
