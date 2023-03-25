@@ -16,12 +16,12 @@
  | `/var` (default docker storage and logs) | 1 Gib   | 5+ Gib  |
 
 2. _(Optional)_ Add admin user
- * Add user **admin** and primary group **admin**: `adduser admin`
- * Add user **admin** to the **sudo** group: `usermod -aG sudo admin`
+ * Add user **admin** and primary group **admin**: `sudo adduser admin`
+ * Add user **admin** to the **sudo** group: `sudo usermod -aG sudo admin`
 
 3. Install packages with apt
- * Do not forget to update and maybe upgrade: `apt-get update && apt-get upgrade`
- * Install **required*** packages: `sudo apt install curl git docker docker-compose`
+ * Do not forget to update and maybe upgrade: `sudo apt update && sudo apt upgrade`
+ * Install **required** packages: `sudo apt install curl git docker docker-compose`
  * Install _additional_ packages: `sudo apt install screen mc pwgen`
 
 ## Installation process
@@ -29,7 +29,11 @@
 1. Get installation files from this repo
 
  * Use git to clone this repo or download them manually to `/opt/infra-wordpress`:
- `git clone https://github.com/Heron345/infra-wordpress.git /opt/infra-wordpress`
+```
+sudo mkdir -vp /opt/infra-wordpress
+sudo chown -v $(id -u):$(id -g)
+git clone https://github.com/Heron345/infra-wordpress.git /opt/infra-wordpress
+```
 
  | FILE or mask | Usage while installation |
  |:-------------|--------------------------|
@@ -109,8 +113,8 @@
  _INFO: Run command in container
  with `docker exec -it infra-wordpress_${service}_1 command`._
 
- * Finally open the Wordpress installation panel
- using `NGINX_SERVER_NAME` and web-browser
+ * Finally open the Wordpress installation panel in web-browser
+ using `NGINX_SERVER_NAME` value as host name
 
 ## Swith to HTTPS and install systemd service
 
@@ -133,14 +137,14 @@ docker-compose up -d
 
 3. Finally set Systemd services
 ```
-cp -v /opt/infra-wordpress/docker-compose@.service /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable docker-compose@infra-wordpress.service
-systemctl start docker-compose@infra-wordpress.service
+sudo cp -v /opt/infra-wordpress/docker-compose@.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable docker-compose@infra-wordpress.service
+sudo systemctl start docker-compose@infra-wordpress.service
 ```
 
  _INFO: Starting the systemd service will do `docker-compose down`
-  and `docker-compose up`. This means services restarting**_
+  and `docker-compose up`. **This means services restarting**_
 
 # Run additional services
 
@@ -149,7 +153,6 @@ _Additional admin services deployments
 
 Using the `docker-compose.override.yml` file
  [is documented by Docker](https://docs.docker.com/compose/extends/)
-
 
 * _Example_: Disable **all** additional services
 
