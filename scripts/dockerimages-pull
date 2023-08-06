@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+# Docker images upgrade tool
+[ -z $1 ] || (
+ set -x
+ docker-compose images
+ docker-compose top
+)
+docker-compose pull

@@ -18,7 +18,7 @@ services:
 
   wordpress: &wordpress # https://github.com/docker-library/wordpress
     depends_on: [ "db" ]
-    image: docker.io/library/wordpress:${WORDPRESS_TAG:-6.1-fpm-alpine}
+    image: docker.io/library/wordpress:${WORDPRESS_TAG:-fpm-alpine}
     restart: unless-stopped
     environment:
       - WORDPRESS_DB_HOST=db:3306 # db is the DB service name (above)
