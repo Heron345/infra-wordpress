@@ -1,0 +1,5 @@
+#!/bin/sh
+
+[ -z "${1}" ] || journalctl --vacuum-size=250M
+
+journalctl --disk-usage
