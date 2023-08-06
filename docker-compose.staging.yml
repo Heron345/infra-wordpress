@@ -25,4 +25,4 @@ services:
       - WORDPRESS_DB_PASSWORD=${MARIADB_PASSWORD:-wordpress-staging-pass}
       - WORDPRESS_DB_NAME=${MARIADB_DATABASE:-wordpress-staging}
     volumes:
-      - ./wordpress-staging:/var/www/html
+      - ./wordpress-staging/html:/var/www/html

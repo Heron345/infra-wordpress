@@ -26,8 +26,8 @@ services:
       - WORDPRESS_DB_PASSWORD=${MARIADB_PASSWORD}
       - WORDPRESS_DB_NAME=${MARIADB_DATABASE}
     volumes:
-      - ./wordpress:/var/www/html
-      - ./wordpress-php-ini/custom.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+      - ./wordpress/html:/var/www/html
+      - ./wordpress/php.ini/custom.ini:/usr/local/etc/php/conf.d/custom.ini:ro
     healthcheck:
       test: ps -T
 
@@ -43,7 +43,7 @@ services:
       - SERVER_NAME=${NGINX_SERVER_NAME} ${NGINX_SERVER_NAMES} # server: server_name (list)
       - CERTBOT_ARCHIVE=${NGINX_SERVER_NAME} # ssl-secrets location part
     volumes:
-      - ./wordpress:/var/www/html:ro     # main site dir
+      - ./wordpress/html:/var/www/html:ro     # main site dir
       - ${NGINX_TEMPLATE:-./nginx/http.conf.template}:/etc/nginx/templates/default.conf.template:ro
       - ${NGINX_SSLCONF_CERTOBOT:-./nginx/options-ssl-nginx.conf}:/etc/nginx/options-ssl-nginx.include:ro
       - ./nginx/options-server.conf:/etc/nginx/options-server.include:ro
